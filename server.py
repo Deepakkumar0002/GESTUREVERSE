@@ -1,27 +1,17 @@
 import asyncio
 import websockets
 
-# Store connected players
-connected_players = set()
-
+# Define your WebSocket handler
 async def handler(websocket, path):
-    # Add new player to the connected set
-    connected_players.add(websocket)
-    try:
-        async for message in websocket:
-            # Broadcast received message to all players
-            for player in connected_players:
-                if player != websocket:
-                    await player.send(message)
-    except websockets.exceptions.ConnectionClosed:
-        pass
-    finally:
-        # Remove disconnected player
-        connected_players.remove(websocket)
+    async for message in websocket:
+        await websocket.send(f"Received: {message}")
 
-# Start WebSocket server
-start_server = websockets.serve(handler, "localhost", 8765)
+# Main function to start the WebSocket server
+async def main():
+    async with websockets.serve(handler, "0.0.0.0", 10000):  # Change port if needed
+        await asyncio.Future()  # Keeps the server running
 
-print("WebSocket server started on ws://localhost:8765")
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+# Run the server
+if __name__ == "__main__":
+    asyncio.run(main())
+
