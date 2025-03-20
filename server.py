@@ -1,14 +1,10 @@
-from fastapi import FastAPI, WebSocket
-import uvicorn
+import asyncio
+import websockets
 
-app = FastAPI()
+async def server(websocket, path):
+    await websocket.send("Hello, client!")
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message received: {data}")
+start_server = websockets.serve(server, "0.0.0.0", 5000)  # Ensure it binds to 5000
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=10000)
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
