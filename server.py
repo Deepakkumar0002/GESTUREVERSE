@@ -1,17 +1,14 @@
-import asyncio
-import websockets
+from fastapi import FastAPI, WebSocket
+import uvicorn
 
-# Define your WebSocket handler
-async def handler(websocket, path):
-    async for message in websocket:
-        await websocket.send(f"Received: {message}")
+app = FastAPI()
 
-# Main function to start the WebSocket server
-async def main():
-    async with websockets.serve(handler, "0.0.0.0", 10000):  # Change port if needed
-        await asyncio.Future()  # Keeps the server running
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message received: {data}")
 
-# Run the server
 if __name__ == "__main__":
-    asyncio.run(main())
-
+    uvicorn.run(app, host="0.0.0.0", port=10000)
